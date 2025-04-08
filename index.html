@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do Project</title>
+    <style>
+        body{
+            background-color: black;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+        }
+        h1{
+            color: white;
+        }
+        .btn , .deletebtn{
+            background-color: yellow;
+            border-radius: 20px;
+            padding: 7px;
+            width: 100px;
+            height: 200pz;
+            font-weight: 500;
+            text-align: center;
+        }
+        #inputValue{
+            padding: 7px;
+            border-radius: 5px;
+            width: 250px;
+            background-color: white;
+        }
+        li{
+            color: red;
+            cursor: pointer;
+            list-style-type: circle;
+            margin: 2rem 0;
+            text-transform: capitalize;
+            font-weight: 500;
+        }
+        li:hover{
+            color: #feac5e;
+        }
+        .main_todo_div{
+            width: 23.5rem;
+            display: grid;
+            grid-template-columns: 1fr 0.3fr;
+            align-items: center;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>ToDo List</h1>
+    <form>
+        <div>
+            <input type="text" id="inputValue">
+            <button class="btn">Add ToDo</button>
+        </div>
+        <section class="To-Do-List-Elem"></section>
+    </form>
+    <script>
+        const inputValue = document.getElementById("inputValue");
+        const mainTodoEle = document.querySelector(".To-Do-List-Elem");
+        
+        const getTodoListFromLocal = () => {
+            return  JSON.parse(localStorage.getItem("youtubeTodoList"));
+        }
+
+        const addTodoListLocalStorage = (LocalTodoLists) => {
+            return localStorage.setItem("youtubeTodoList",JSON.stringify(LocalTodoLists));
+        }
+        
+        let LocalTodoLists = getTodoListFromLocal() || [];   
+        
+        const addTodoDynamicElement = (curEle) => {
+            
+            const divElement = document.createElement("div");
+            divElement.classList.add("main_todo_div");
+            divElement.innerHTML = `<li> ${curEle}</li>    
+            <button class="deletebtn">Delete</button>`
+            mainTodoEle.append(divElement);
+        }
+
+        const addTodoList = (e) =>{
+            e.preventDefault();     
+
+            const todoListValue = inputValue.value.trim();
+
+            LocalTodoLists.push(todoListValue);
+            LocalTodoLists = [...new Set(LocalTodoLists)];
+            console.log(LocalTodoLists);
+            localStorage.setItem("youtubeTodoList",JSON.stringify(LocalTodoLists));
+
+            addTodoDynamicElement(todoListValue);
+        }
+
+        const showTodoList = () => {
+            console.log(LocalTodoLists);
+
+            LocalTodoLists.forEach((curEle) => {
+                addTodoDynamicElement(curEle);
+            });
+        }
+
+        showTodoList();
+
+        const removeTodoElem = (e) =>{
+            console.log(e.target);
+            const todoToRemove = e.target;
+            let todoListContent = todoToRemove.previousElementSibling.innerText;
+            let parentElem = todoToRemove.parentElement;
+            console.log(todoListContent);
+
+            LocalTodoLists = LocalTodoLists.filter((curTodo) =>{
+                return curTodo !== todoListContent.toLowerCase();
+            });
+
+            addTodoListLocalStorage(LocalTodoLists);
+            parentElem.remove();
+
+            console.log(LocalTodoLists);
+            
+        }
+
+        mainTodoEle.addEventListener("click",(e) => {
+            e.preventDefault();
+            if(e.target.classList.contains("deletebtn")){
+                removeTodoElem(e);
+            }
+        });
+        document.querySelector(".btn").addEventListener("click", (e) =>{    // in forms we have to give event to call it
+            addTodoList(e);
+        });
+    </script>
+</body>
+</html>
